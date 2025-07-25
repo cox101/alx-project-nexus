@@ -75,14 +75,4 @@ The objective of this project is to:
 - 💬 **Discord Channel**: `#ProDevProjectNexus`  
   Discuss ideas, share feedback, ask questions, and sync project efforts.
 
-### 💡 Pro Tip:
 
-- During **Week 1**, communicate the project you're working on.
-- Identify frontend learners building related features.
-- Sync early to design API contracts and integration points smoothly.
-
----
-
-## 🗃 Suggested Repository Structure
-
-# alx-project-nexus
