@@ -1,0 +1,48 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+
+# Django & DRF
+*.log
+*.pot
+*.pyc
+*.sqlite3
+*.db
+db.sqlite3
+media/
+static/
+staticfiles/
+
+# Secrets
+.env
+.env.*
+
+# Migrations (optional – useful to ignore if team regenerates them)
+**/migrations/*.py
+**/migrations/__pycache__/
+
+# PostgreSQL
+*.sql
+*.dump
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# Celery files
+celerybeat-schedule
+celerybeat.pid
+
+# Render or other deployment configs
+render.yaml
+
+# MacOS & Windows junk
+.DS_Store
+Thumbs.db
