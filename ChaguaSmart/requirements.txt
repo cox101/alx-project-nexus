@@ -1,0 +1,24 @@
+Django>=4.2
+djangorestframework
+psycopg2-binary
+drf-yasg
+django-environ
+djangorestframework-simplejwt
+gunicorn
+django-cors-headers
+django-filter  
+django-extensions
+django-redis 
+Django
+gunicorn
+dj-database-url
+whitenoise
+drf-yasg
+django-environ
+django-cors-headers
+
+#API: http://localhost:8000/api/polls/
+
+#Swagger Docs: http://localhost:8000/api/docs/
+
+#Admin Panel: http://localhost:8000/admin/

@@ -1,0 +1,25 @@
+class PollListCreateView(generics.ListCreateAPIView):
+    serializer_class = PollSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Poll.objects.filter(created_by__campus=user.campus)
+class PollResultsView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        poll_id = kwargs.get("poll_id")
+        options = Option.objects.filter(poll_id=poll_id).annotate(vote_count=Count('votes'))
+
+        total_votes = sum([opt.vote_count for opt in options]) or 1  # avoid ZeroDivision
+
+        data = [
+            {
+                "option": option.title,
+                "votes": option.vote_count,
+                "percentage": round((option.vote_count / total_votes) * 100, 2)
+            }
+            for option in options
+        ]
+        return Response(data)
