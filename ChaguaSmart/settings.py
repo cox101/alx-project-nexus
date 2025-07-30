@@ -5,6 +5,13 @@ INSTALLED_APPS = [
     'users',
     'polls',
 ]
+INSTALLED_APPS = [
+    #...
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'users',
+]
+
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -28,11 +35,11 @@ DEBUG = env("DEBUG")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("POSTGRES_DB"),
-        'USER': env("POSTGRES_USER"),
-        'PASSWORD': env("POSTGRES_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),
+        'NAME': env("chaguasmart_db"),
+        'USER': env("ChaguaSmart_db_user"),
+        'PASSWORD': env("hpVI6FKvleBgubB21jG0k7HKfjYbHrci"),
+        'HOST': env("Render"),
+        'PORT': env("5432"),
     }
 }
 
@@ -99,4 +106,22 @@ load_dotenv()
 
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }

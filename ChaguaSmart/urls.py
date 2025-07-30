@@ -15,3 +15,11 @@ schema_view = get_schema_view(
 urlpatterns += [
    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('yourapp.api.urls')),  # ← include API routes
+]

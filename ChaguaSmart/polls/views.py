@@ -107,3 +107,51 @@ class CastVoteView(generics.CreateAPIView):
 
         vote = Vote.objects.create(user=user, poll=poll, option_id=option_id)
         return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
+
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import Poll, Option, Vote
+from .serializers import (
+    PollSerializer,
+    CreatePollSerializer,
+    OptionSerializer,
+    VoteSerializer
+)
+
+class PollViewSet(viewsets.ModelViewSet):
+    queryset = Poll.objects.all().order_by('-created_at')
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreatePollSerializer
+        return PollSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def vote(self, request, pk=None):
+        poll = self.get_object()
+        serializer = VoteSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user, poll=poll)
+            return Response({"message": "Vote submitted"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OptionViewSet(viewsets.ModelViewSet):
+    queryset = Option.objects.all()
+    serializer_class = OptionSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+from rest_framework.permissions import IsAuthenticated
+
+class PollCreateView(generics.CreateAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)

@@ -2,7 +2,6 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.utils.timezone import now
 from django.db.models import Count
-
 from .models import Poll, Option, Vote
 from .serializers import PollSerializer, VoteSerializer
 from rest_framework import generics
@@ -50,3 +49,20 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
+
+from rest_framework import generics
+from .serializers import RegisterSerializer
+from django.contrib.auth.models import User
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+
+    from rest_framework import generics
+from .serializers import RegisterSerializer
+from django.contrib.auth.models import User
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+
