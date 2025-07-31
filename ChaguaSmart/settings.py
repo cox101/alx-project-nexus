@@ -125,3 +125,4 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChaguaSmart.settings')
