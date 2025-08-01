@@ -1,15 +1,14 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class User(AbstractUser):
     is_admin = models.BooleanField(default=False)
     campus = models.CharField(max_length=100)
 
     def __str__(self):
         return self.username
-    
-from django.db import models
-from django.contrib.auth.models import User
+
 
 class Poll(models.Model):
     title = models.CharField(max_length=255)
@@ -21,6 +20,7 @@ class Poll(models.Model):
     def __str__(self):
         return self.title
 
+
 class Option(models.Model):
     poll = models.ForeignKey(Poll, related_name='options', on_delete=models.CASCADE)
     option_text = models.CharField(max_length=255)
@@ -28,10 +28,12 @@ class Option(models.Model):
     def __str__(self):
         return f"{self.poll.title} - {self.option_text}"
 
+
 class Vote(models.Model):
     option = models.ForeignKey(Option, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     voted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        unique_together = ('option', 'user')  # Prevent duplicate voting
         unique_together = ('option', 'user')  # Prevent duplicate voting

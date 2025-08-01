@@ -1,22 +1,33 @@
-from django.urls import path
-from .views import PollListCreateView, CastVoteView, PollResultsView
-
-urlpatterns = [
-    path('', PollListCreateView.as_view(), name='poll-list-create'),
-    path('<int:poll_id>/vote/', CastVoteView.as_view(), name='cast-vote'),
-    path('<int:poll_id>/results/', PollResultsView.as_view(), name='poll-results'),
-]
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PollViewSet, OptionViewSet
+from .views import (
+    PollViewSet,
+    VoteAPIView,
+    PollResultsAPIView,
+    UserVotesAPIView,
+    ActivePollsAPIView
+)
 
+app_name = 'polls'
+
+# Router for ViewSet-based endpoints
 router = DefaultRouter()
-router.register(r'polls', PollViewSet, basename='polls')
-router.register(r'options', OptionViewSet, basename='options')
+router.register(r'polls', PollViewSet, basename='poll')
 
 urlpatterns = [
+    # Router URLs (includes CRUD operations for polls)
     path('', include(router.urls)),
+    
+    # Voting endpoints
+    path('votes/', VoteAPIView.as_view(), name='vote-create'),
+    path('votes/my-votes/', UserVotesAPIView.as_view(), name='user-votes'),
+    
+    # Poll-specific actions
+    path('polls/<int:pk>/results/', PollResultsAPIView.as_view(), name='poll-results'),
+    path('polls/<int:pk>/vote/', VoteAPIView.as_view(), name='poll-vote'),
+    
+    # Additional endpoints
+    path('polls/active/', ActivePollsAPIView.as_view(), name='active-polls'),
 ]
 
 from django.contrib import admin

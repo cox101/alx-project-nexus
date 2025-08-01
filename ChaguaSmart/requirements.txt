@@ -1,24 +1,43 @@
 Django>=4.2
 djangorestframework
-psycopg2-binary
-drf-yasg
-django-environ
 djangorestframework-simplejwt
-gunicorn
-django-cors-headers
-django-filter  
-django-extensions
-django-redis 
-Django
-gunicorn
+psycopg2-binary
 dj-database-url
-whitenoise
-drf-yasg
 django-environ
 django-cors-headers
+django-filter
+django-extensions
+django-redis
+drf-yasg
+gunicorn
+whitenoise
+python-dotenv
 
-#API: http://localhost:8000/api/polls/
+# API Endpoints:
+# Main API: http://localhost:8000/api/polls/
+# Swagger Docs: http://localhost:8000/api/docs/
+# Admin Panel: http://localhost:8000/admin/
+# Auth endpoints: http://localhost:8000/api/auth/
 
-#Swagger Docs: http://localhost:8000/api/docs/
+from django.contrib import admin
+from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
 
-#Admin Panel: http://localhost:8000/admin/
+schema_view = get_schema_view(
+    openapi.Info(
+        title="ChaguaSmart API",
+        default_version='v1',
+        description="Polling system API",
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/auth/', include('users.urls')),
+    path('api/polls/', include('polls.urls')),  # if you have a separate polls app
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
+]

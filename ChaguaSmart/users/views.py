@@ -1,14 +1,14 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django.utils.timezone import now
 from django.db.models import Count
-from .models import Poll, Option, Vote
-from .serializers import PollSerializer, VoteSerializer
-from rest_framework import generics
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .models import Poll, Option, Vote
+from .serializers import PollSerializer, VoteSerializer, RegisterSerializer
+
+User = get_user_model()
+
 
 class PollListCreateView(generics.ListCreateAPIView):
     queryset = Poll.objects.all()
@@ -17,6 +17,7 @@ class PollListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
 
 class CastVoteView(generics.CreateAPIView):
     serializer_class = VoteSerializer
@@ -27,42 +28,30 @@ class CastVoteView(generics.CreateAPIView):
         poll_id = self.kwargs.get("poll_id")
         option_id = request.data.get("option")
 
-        if Vote.objects.filter(user=user, poll_id=poll_id).exists():
+        # Check if user has already voted on this poll
+        if Vote.objects.filter(user=user, option__poll_id=poll_id).exists():
             return Response({"detail": "You have already voted."}, status=status.HTTP_400_BAD_REQUEST)
 
-        vote = Vote.objects.create(user=user, poll_id=poll_id, option_id=option_id)
-        return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
+        try:
+            option = Option.objects.get(id=option_id, poll_id=poll_id)
+            vote = Vote.objects.create(user=user, option=option)
+            return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
+        except Option.DoesNotExist:
+            return Response({"detail": "Invalid option."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PollResultsView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
     def retrieve(self, request, *args, **kwargs):
         poll_id = kwargs.get("poll_id")
-        options = Option.objects.filter(poll_id=poll_id).annotate(vote_count=Count('votes'))
-        data = [{"option": option.title, "votes": option.vote_count} for option in options]
+        options = Option.objects.filter(poll_id=poll_id).annotate(vote_count=Count('vote'))
+        data = [{"option": option.option_text, "votes": option.vote_count} for option in options]
         return Response(data)
 
-
-User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
-    serializer_class = UserSerializer
-
-from rest_framework import generics
-from .serializers import RegisterSerializer
-from django.contrib.auth.models import User
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-
-    from rest_framework import generics
-from .serializers import RegisterSerializer
-from django.contrib.auth.models import User
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
     serializer_class = RegisterSerializer
 

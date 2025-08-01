@@ -17,3 +17,5 @@ class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
         fields = ['poll', 'option', 'voter_ip']
+
+# This file makes the directory a Python package
