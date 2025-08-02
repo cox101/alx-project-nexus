@@ -222,3 +222,12 @@ class UserVoteSerializer(serializers.ModelSerializer):
         model = Vote
         fields = ['id', 'poll_title', 'option_text', 'voted_at']
         read_only_fields = ['id', 'poll_title', 'option_text', 'voted_at']
+
+
+class PollSerializer(serializers.ModelSerializer):
+    """Serializer for the Poll model"""
+    
+    class Meta:
+        model = Poll
+        fields = ['id', 'title', 'description', 'options', 'is_active', 'created_by', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']

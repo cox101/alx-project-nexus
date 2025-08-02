@@ -1,4 +1,3 @@
-
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from django.core.exceptions import PermissionDenied
@@ -26,10 +25,15 @@ class CastVoteView(generics.CreateAPIView):
         poll_id = self.kwargs.get("poll_id")
         option_id = request.data.get("option")
 
+        poll = Poll.objects.get(id=poll_id)
+
+        if not poll.is_active:
+            raise PermissionDenied("This poll has expired.")
+
         if Vote.objects.filter(user=user, poll_id=poll_id).exists():
             return Response({"detail": "You have already voted."}, status=status.HTTP_400_BAD_REQUEST)
 
-        vote = Vote.objects.create(user=user, poll_id=poll_id, option_id=option_id)
+        vote = Vote.objects.create(user=user, poll=poll, option_id=option_id)
         return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
 class PollResultsView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
@@ -155,3 +159,12 @@ class PollCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+class FilteredPollListView(generics.ListAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['is_active', 'created_by']

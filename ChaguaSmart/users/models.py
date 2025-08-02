@@ -3,11 +3,14 @@ from django.db import models
 
 
 class User(AbstractUser):
+    """Custom user model that uses email as the unique identifier."""
+    
+    email = models.EmailField(unique=True)
     is_admin = models.BooleanField(default=False)
     campus = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.username
+        return self.email
 
 
 class Poll(models.Model):
@@ -35,5 +38,4 @@ class Vote(models.Model):
     voted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('option', 'user')  # Prevent duplicate voting
         unique_together = ('option', 'user')  # Prevent duplicate voting

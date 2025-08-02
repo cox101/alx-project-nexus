@@ -17,11 +17,15 @@ def user_created_or_updated(sender, instance, created, **kwargs):
     
     if created:
         # Log new user
-        print(f"New user registered: {instance.username} ({instance.email}) from campus {instance.campus}")
+        campus_info = getattr(instance, 'campus', 'Not specified')
+        print(f"New user registered: {instance.username} ({instance.email}) from campus {campus_info}")
         
         # You could create a profile, send welcome email, etc.
         # create_user_profile(instance)
         # send_welcome_email(instance)
+    else:
+        # For updates
+        print(f"User updated: {instance.username} ({instance.email})")
 
 
 @receiver(pre_save, sender=User)
@@ -37,11 +41,10 @@ def user_about_to_save(sender, instance, **kwargs):
                 # instance.email_verified = False
                 print(f"User {instance.username} changed email from {old_instance.email} to {instance.email}")
             
-            # If campus changed, you might want to handle that
-            if old_instance.campus != instance.campus:
-                print(f"User {instance.username} changed campus from {old_instance.campus} to {instance.campus}")
-                # You might want to update related objects
-                # update_user_campus_related_data(instance)
+            # If campus changed, check safely if the attribute exists
+            if hasattr(old_instance, 'campus') and hasattr(instance, 'campus'):
+                if getattr(old_instance, 'campus', None) != getattr(instance, 'campus', None):
+                    print(f"User {instance.username} changed campus from {getattr(old_instance, 'campus', 'None')} to {getattr(instance, 'campus', 'None')}")
                 
         except User.DoesNotExist:
             # This is a new user, though we should never reach here due to the if instance.pk condition

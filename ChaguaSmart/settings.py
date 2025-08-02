@@ -3,7 +3,6 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 import dj_database_url
-from django_filters.rest_framework import DjangoFilterBackend
 
 # Load environment variables
 env = environ.Env(
@@ -11,12 +10,18 @@ env = environ.Env(
 )
 environ.Env.read_env()
 
+# Import the override at the top level before any DRF imports
+try:
+    import rest_framework_override
+except ImportError:
+    pass
+
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = env("SECRET_KEY", default="insecure-key")
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 # Application definition
@@ -26,23 +31,26 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',  # Fixed missing comma here
+    'django.contrib.staticfiles',
     
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
-    'django_filters',  # Added correctly
+    'django_filters',  # This is correct
     'drf_yasg',
+    'corsheaders',
     
     # Local apps
     'users',
     'polls',
+    'config',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -72,20 +80,21 @@ WSGI_APPLICATION = 'ChaguaSmart.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': dj_database_url.config(
-        default=env("DATABASE_URL", default="sqlite:///db.sqlite3")
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Custom user model
 AUTH_USER_MODEL = 'users.User'
 
-# REST Framework Configuration
+# REST Framework Configuration - DO NOT INCLUDE DEFAULT_FILTER_BACKENDS HERE
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # We're removing DEFAULT_FILTER_BACKENDS completely to avoid the import error
 }
 
 SIMPLE_JWT = {
@@ -94,13 +103,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Static files (production)
+# CORS settings
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000", "http://127.0.0.1:3000"])
+CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=True)
+
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# In your views.py files
-class MyListView(generics.ListAPIView):
-    queryset = MyModel.objects.all()
-    serializer_class = MyModelSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['field1', 'field2']
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

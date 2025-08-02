@@ -5,7 +5,8 @@ from .views import (
     VoteAPIView,
     PollResultsAPIView,
     UserVotesAPIView,
-    ActivePollsAPIView
+    ActivePollsAPIView,
+    FilteredPollListView
 )
 
 app_name = 'polls'
@@ -28,6 +29,7 @@ urlpatterns = [
     
     # Additional endpoints
     path('polls/active/', ActivePollsAPIView.as_view(), name='active-polls'),
+    path('filtered/', FilteredPollListView.as_view(), name='filtered-polls'),
 ]
 
 from django.contrib import admin

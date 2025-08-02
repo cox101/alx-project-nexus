@@ -13,7 +13,7 @@ class ChaguapollConfig(AppConfig):
         """
         # Import signals if you have any
         try:
-            import chaguapoll.signals
+            import chaguapoll
         except ImportError:
             pass
         
