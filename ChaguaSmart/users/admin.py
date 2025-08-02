@@ -1,27 +1,27 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import UserAdmin
 from .models import User, Poll, Option, Vote
 
 
-class CustomUserAdmin(BaseUserAdmin):
+class CustomUserAdmin(UserAdmin):
     # Add custom fields to the user admin
-    fieldsets = BaseUserAdmin.fieldsets + (
+    fieldsets = UserAdmin.fieldsets + (
         ('Custom Fields', {'fields': ('campus', 'is_admin')}),
     )
     
     # Add custom fields to the add user form
-    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+    add_fieldsets = UserAdmin.add_fieldsets + (
         ('Custom Fields', {'fields': ('campus', 'is_admin')}),
     )
     
     # Display these fields in the user list
-    list_display = BaseUserAdmin.list_display + ('campus', 'is_admin')
+    list_display = UserAdmin.list_display + ('campus', 'is_admin')
     
     # Add filters for custom fields
-    list_filter = BaseUserAdmin.list_filter + ('campus', 'is_admin')
+    list_filter = UserAdmin.list_filter + ('campus', 'is_admin')
     
     # Make campus searchable
-    search_fields = BaseUserAdmin.search_fields + ('campus',)
+    search_fields = UserAdmin.search_fields + ('campus',)
 
 
 class OptionInline(admin.TabularInline):

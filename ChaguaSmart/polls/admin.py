@@ -1,25 +1,20 @@
 from django.contrib import admin
 from django.utils import timezone
-from django.db.models import Count
-from django.utils.html import format_html
 from .models import Poll, Option, Vote
 
 
 class OptionInline(admin.TabularInline):
     model = Option
     extra = 2
-    fields = ('option_text',)
 
 
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_by', 'start_time', 'end_time', 'status_display', 'total_votes_display')
-    list_filter = ('start_time', 'end_time', 'created_by', 'created_at')
-    search_fields = ('title', 'description')
-    readonly_fields = ('created_by', 'created_at', 'updated_at', 'total_votes_display', 'status_display')
+    list_display = ('title', 'created_by', 'start_time', 'end_time', 'is_active', 'status')
     inlines = [OptionInline]
-    date_hierarchy = 'created_at'
-    
+    search_fields = ('title', 'description')
+    list_filter = ('is_active', 'start_time', 'end_time')
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'description')
@@ -36,91 +31,32 @@ class PollAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     def save_model(self, request, obj, form, change):
         if not change:  # If creating a new poll
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
-    
-    def status_display(self, obj):
-        """Display poll status with color coding"""
-        status = obj.status
-        colors = {
-            'active': 'green',
-            'upcoming': 'orange',
-            'ended': 'red'
-        }
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{}</span>',
-            colors.get(status, 'black'),
-            status.upper()
-        )
-    status_display.short_description = 'Status'
-    
-    def total_votes_display(self, obj):
-        """Display total votes count"""
-        if obj.pk:
-            return obj.total_votes
-        return "No votes yet"
-    total_votes_display.short_description = 'Total Votes'
-    
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('created_by')
 
 
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
-    list_display = ('option_text', 'poll', 'vote_count_display', 'vote_percentage_display')
-    list_filter = ('poll', 'created_at')
-    search_fields = ('option_text', 'poll__title')
-    readonly_fields = ('created_at', 'vote_count_display', 'vote_percentage_display')
-    
-    def vote_count_display(self, obj):
-        """Display vote count for this option"""
-        return obj.vote_count
-    vote_count_display.short_description = 'Votes'
-    
-    def vote_percentage_display(self, obj):
-        """Display vote percentage for this option"""
-        percentage = obj.vote_percentage
-        return f"{percentage}%"
-    vote_percentage_display.short_description = 'Percentage'
-    
+    list_display = ('text', 'poll', 'vote_count')
+    search_fields = ('text', 'poll__title')
+    list_filter = ('poll',)
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('poll')
 
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'poll_title', 'option', 'voted_at', 'ip_address')
-    list_filter = ('voted_at', 'option__poll', 'user')
-    search_fields = ('user__username', 'option__option_text', 'option__poll__title')
-    readonly_fields = ('voted_at', 'user', 'option', 'ip_address', 'user_agent')
-    date_hierarchy = 'voted_at'
-    
-    fieldsets = (
-        ('Vote Information', {
-            'fields': ('user', 'option', 'voted_at')
-        }),
-        ('Technical Details', {
-            'fields': ('ip_address', 'user_agent'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    def poll_title(self, obj):
-        """Display poll title for this vote"""
-        return obj.option.poll.title
-    poll_title.short_description = 'Poll'
-    
-    def has_add_permission(self, request):
-        """Prevent manual vote creation through admin"""
-        return False
-    
-    def has_change_permission(self, request, obj=None):
-        """Prevent vote modification through admin"""
-        return False
-    
+    list_display = ('user', 'poll', 'option', 'voted_at')
+    search_fields = ('user__username', 'poll__title')
+    list_filter = ('poll', 'voted_at')
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
             'user', 'option', 'option__poll'
@@ -162,25 +98,25 @@ PollAdmin.actions = [close_polls, activate_polls]
 # Register additional models if they exist
 try:
     from .models import PollCategory, PollView
-    
+
     @admin.register(PollCategory)
     class PollCategoryAdmin(admin.ModelAdmin):
         list_display = ('name', 'description', 'color', 'poll_count')
         search_fields = ('name', 'description')
-        
+
         def poll_count(self, obj):
             return obj.polls.count()
         poll_count.short_description = 'Polls Count'
-    
+
     @admin.register(PollView)
     class PollViewAdmin(admin.ModelAdmin):
         list_display = ('poll', 'user', 'ip_address', 'viewed_at')
         list_filter = ('viewed_at', 'poll')
         readonly_fields = ('poll', 'user', 'ip_address', 'viewed_at')
-        
+
         def has_add_permission(self, request):
             return False
-        
+
         def has_change_permission(self, request, obj=None):
             return False
 

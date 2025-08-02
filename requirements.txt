@@ -1,15 +1,11 @@
-Django>=4.2.0
+Django>=4.2.0,<5.0
 djangorestframework>=3.14.0
 djangorestframework-simplejwt>=5.2.0
 django-cors-headers>=4.0.0
 drf-yasg>=1.21.0
 python-dotenv>=1.0.0
-psycopg2-binary>=2.9.0
-dj-database-url>=2.0.0
-whitenoise>=6.0.0
-django-environ>=0.10.0
-django-filter>=23.2
-
+Pillow>=10.0.0
+django-filter>=23.0
 
 pip install -r requirements.txt# Create virtual environment (if you haven't already)
 python -m venv venv
@@ -59,12 +55,3 @@ pip install django-cors-headers
 pip install drf-yasg
 pip install python-dotenv
 pip install djangorestframework djangorestframework-simplejwt django-cors-headers drf-yasg python-dotenv
-
-[
-    {
-        "type": "command",
-        "details": {
-            "key": "python.execInTerminal"
-        }
-    }
-]

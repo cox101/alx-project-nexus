@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 import dj_database_url
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Load environment variables
 env = environ.Env(
@@ -25,13 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-
+    'django.contrib.staticfiles',  # Fixed missing comma here
+    
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_filters',  # Added correctly
     'drf_yasg',
-
+    
     # Local apps
     'users',
     'polls',
@@ -71,16 +73,17 @@ WSGI_APPLICATION = 'ChaguaSmart.wsgi.application'
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        default=env("DATABASE_URL")
+        default=env("DATABASE_URL", default="sqlite:///db.sqlite3")
     )
 }
 
 # Custom user model
 AUTH_USER_MODEL = 'users.User'
 
-# JWT settings
+# REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
@@ -94,3 +97,10 @@ SIMPLE_JWT = {
 # Static files (production)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# In your views.py files
+class MyListView(generics.ListAPIView):
+    queryset = MyModel.objects.all()
+    serializer_class = MyModelSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['field1', 'field2']
