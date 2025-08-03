@@ -4,9 +4,10 @@ from rest_framework.permissions import AllowAny
 from django.utils.timezone import now
 from django.db.models import Count
 from django.contrib.auth import get_user_model
-from .models import Poll, Option, Vote
+# Import models from polls app, not users app
+from polls.models import Poll, Option, Vote 
 from .serializers import RegisterSerializer
-from polls.serializers import PollSerializer, VoteSerializer  # Import from polls app
+from polls.serializers import PollSerializer, VoteSerializer
 
 User = get_user_model()
 

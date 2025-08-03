@@ -1,14 +1,19 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class Poll(models.Model):
     title = models.CharField(max_length=255)
-    description = models.TextField()
-    created_by = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    start_time = models.DateTimeField(default=timezone.now)
-    end_time = models.DateTimeField()
+    description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='created_polls'  # Add related_name to avoid conflicts
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -49,13 +54,17 @@ class Option(models.Model):
 
 
 class Vote(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
-    option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='votes')
+    option = models.ForeignKey('Option', on_delete=models.CASCADE, related_name='votes')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='cast_votes'  # Add related_name to avoid conflicts
+    )
     voted_at = models.DateTimeField(auto_now_add=True)
-
+    
     class Meta:
-        unique_together = ('user', 'poll')
+        unique_together = ('poll', 'user')  # Ensure one vote per user per poll
 
     def __str__(self):
         return f"{self.user.username} voted for {self.option.text} in {self.poll.title}"

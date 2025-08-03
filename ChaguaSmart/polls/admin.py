@@ -10,57 +10,21 @@ class OptionInline(admin.TabularInline):
 
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_by', 'start_time', 'end_time', 'is_active', 'status')
+    list_display = ['title', 'is_active', 'created_at', 'updated_at']  # Remove 'start_time' and 'end_time'
+    list_filter = ['is_active', 'created_at']  # Remove 'start_time' and 'end_time'
+    search_fields = ['title', 'description']
     inlines = [OptionInline]
-    search_fields = ('title', 'description')
-    list_filter = ('is_active', 'start_time', 'end_time')
-
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('title', 'description')
-        }),
-        ('Timing', {
-            'fields': ('start_time', 'end_time')
-        }),
-        ('Settings', {
-            'fields': ('is_anonymous', 'allow_multiple_votes', 'campus_restricted'),
-            'classes': ('collapse',)
-        }),
-        ('Meta Information', {
-            'fields': ('created_by', 'created_at', 'updated_at', 'total_votes_display', 'status_display'),
-            'classes': ('collapse',)
-        }),
-    )
-
-    def save_model(self, request, obj, form, change):
-        if not change:  # If creating a new poll
-            obj.created_by = request.user
-        super().save_model(request, obj, form, change)
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('created_by')
-
-
-@admin.register(Option)
-class OptionAdmin(admin.ModelAdmin):
-    list_display = ('text', 'poll', 'vote_count')
-    search_fields = ('text', 'poll__title')
-    list_filter = ('poll',)
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('poll')
+    readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'poll', 'option', 'voted_at')
-    search_fields = ('user__username', 'poll__title')
-    list_filter = ('poll', 'voted_at')
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            'user', 'option', 'option__poll'
-        )
+    list_display = ['user', 'poll', 'option', 'voted_at']
+    list_filter = ['voted_at']
+    search_fields = ['user__username', 'poll__title']
+    
+    def poll(self, obj):
+        return obj.option.poll.title
 
 
 # Customize admin site header and title
