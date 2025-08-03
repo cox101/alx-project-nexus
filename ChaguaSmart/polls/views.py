@@ -7,19 +7,18 @@ from .serializers import PollSerializer, VoteSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 User = get_user_model()
-class PollListCreateView(generics.ListCreateAPIView):
-    queryset = Poll.objects.all()
-    serializer_class = PollSerializer
-    permission_classes = [permissions.IsAuthenticated]
+from users.serializers import UserSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+class CustomTokenRefreshView(TokenRefreshView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer   
 
-    def perform_create(self, serializer):
-        if not self.request.user.is_admin:
-            raise PermissionDenied("Only admins can create polls.")
-        serializer.save(created_by=self.request.user)
+from rest_framework.exceptions import PermissionDenied
+
 class CastVoteView(generics.CreateAPIView):
-    serializer_class = VoteSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
     def create(self, request, *args, **kwargs):
         user = request.user
         poll_id = self.kwargs.get("poll_id")
@@ -35,40 +34,8 @@ class CastVoteView(generics.CreateAPIView):
 
         vote = Vote.objects.create(user=user, poll=poll, option_id=option_id)
         return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
-class PollResultsView(generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
 
-    def retrieve(self, request, *args, **kwargs):
-        poll_id = kwargs.get("poll_id")
-        options = Option.objects.filter(poll_id=poll_id).annotate(vote_count=Count('votes'))
-        data = [{"option": option.title, "votes": option.vote_count} for option in options]
-        return Response(data)
-from rest_framework import generics
-from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
-User = get_user_model()
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
-from .serializers import UserSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-class CustomTokenObtainPairView(TokenObtainPairView):
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
-class CustomTokenRefreshView(TokenRefreshView):
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer   
-from django.urls import path, include
-from .views import PollListCreateView, CastVoteView, PollResultsView, RegisterView, CustomTokenObtainPairView, CustomTokenRefreshView
-urlpatterns = [
-    path('', PollListCreateView.as_view(), name='poll-list-create'),
-    path('<int:poll_id>/vote/', CastVoteView.as_view(), name='cast-vote'),
-    path('<int:poll_id>/results/', PollResultsView.as_view(), name='poll-results'),
-    path('register/', RegisterView.as_view(), name='user-register'),
-    path('token/', CustomTokenObtainPairView.as_view(), name='token-obtain-pair'),
-    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token-refresh'),
-]
+# (Move this block below the PollListCreateView and other view class definitions)
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import permissions
@@ -162,9 +129,48 @@ class PollCreateView(generics.CreateAPIView):
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+class PollListCreateView(generics.ListCreateAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
 class FilteredPollListView(generics.ListAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_active', 'created_by']
+
+class PollResultsView(generics.RetrieveAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        poll_id = self.kwargs.get("poll_id")
+class PollResultsView(generics.RetrieveAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        poll_id = self.kwargs.get("poll_id")
+        poll = Poll.objects.get(id=poll_id)
+        options = Option.objects.filter(poll=poll).annotate(vote_count=Count('vote'))
+        results = {option.text: option.vote_count for option in options}
+        return Response({
+            "poll": PollSerializer(poll).data,
+            "results": results
+        })
+
+from django.urls import path, include
+urlpatterns = [
+    path('', PollListCreateView.as_view(), name='poll-list-create'),
+    path('<int:poll_id>/vote/', CastVoteView.as_view(), name='cast-vote'),
+    path('<int:poll_id>/results/', PollResultsView.as_view(), name='poll-results'),
+    path('token/', CustomTokenObtainPairView.as_view(), name='token-obtain-pair'),
+    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token-refresh'),
+]

@@ -1,30 +1,29 @@
 from django.contrib import admin
-from django.utils import timezone
+from django.utils import timezone  # Add this import
 from .models import Poll, Option, Vote
-
-
-class OptionInline(admin.TabularInline):
-    model = Option
-    extra = 2
 
 
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
-    list_display = ['title', 'is_active', 'created_at', 'updated_at']  # Remove 'start_time' and 'end_time'
-    list_filter = ['is_active', 'created_at']  # Remove 'start_time' and 'end_time'
+    list_display = ['title', 'created_by', 'is_active']
+    list_filter = ['is_active']
     search_fields = ['title', 'description']
-    inlines = [OptionInline]
-    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(Option)
+class OptionAdmin(admin.ModelAdmin):
+    # The field might be 'text' instead of 'option_text'
+    list_display = ['poll', 'text']  # Change 'option_text' to match your actual field name
+    list_filter = ['poll']
+    search_fields = ['text', 'poll__title']  # Update here too
 
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ['user', 'poll', 'option', 'voted_at']
+    list_display = ['user', 'option', 'voted_at']
     list_filter = ['voted_at']
-    search_fields = ['user__username', 'poll__title']
-    
-    def poll(self, obj):
-        return obj.option.poll.title
+    search_fields = ['user__username', 'option__option_text']
+    readonly_fields = ('voted_at',)
 
 
 # Customize admin site header and title
@@ -87,3 +86,11 @@ try:
 except ImportError:
     # Models don't exist, skip registration
     pass
+
+# Suggested code change: User registration data (not directly related to admin code)
+user_data = {
+    "username": "newuser",
+    "email": "user@example.com",
+    "password": "securepassword123",
+    "campus": "Main Campus"
+}
