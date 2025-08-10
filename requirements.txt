@@ -1,13 +1,11 @@
-Django>=4.2.0,<5.0
-djangorestframework>=3.14.0
-djangorestframework-simplejwt>=5.2.0
-django-cors-headers>=4.0.0
-drf-yasg>=1.21.0
-python-dotenv>=1.0.0
-Pillow>=10.0.0
-django-filter>=23.0
+Django>=5.2
+psycopg2-binary
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+drf-yasg
+python-dotenv
 
-pip install -r requirements.txt# Create virtual environment (if you haven't already)
 python -m venv venv
 
 # Activate it
@@ -18,7 +16,7 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Install packages
-pip install -r requirements.txt
+#pip install --no-cache-dir -r requirements.txt
 
 # API Endpoints:
 # Main API: http://localhost:8000/api/polls/
@@ -31,6 +29,7 @@ from django.urls import path, include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+import os
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -42,16 +41,20 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DJANGO_DB_NAME', 'chaguasmart'),
+        'USER': os.environ.get('DJANGO_DB_USER', 'chaguasmart'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'chaguasmart'),
+        'HOST': os.environ.get('DJANGO_DB_HOST', 'localhost'),
+        'PORT': '5432',
+    }
+}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/polls/', include('polls.urls')),  # if you have a separate polls app
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
 ]
-
-pip install djangorestframework
-pip install djangorestframework-simplejwt
-pip install django-cors-headers
-pip install drf-yasg
-pip install python-dotenv
-pip install djangorestframework djangorestframework-simplejwt django-cors-headers drf-yasg python-dotenv

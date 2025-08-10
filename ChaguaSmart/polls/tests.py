@@ -293,3 +293,10 @@ class ModelTests(TestCase):
         poll.end_time = timezone.now() + timedelta(days=1)
         poll.save()
         self.assertFalse(poll.has_expired)
+
+
+class PollsApiTests(APITestCase):
+    def test_list_polls(self):
+        url = reverse('polls-list')  # Use your actual URL name
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

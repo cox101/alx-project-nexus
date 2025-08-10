@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
-from django.urls import path, include
 
 
 class Poll(models.Model):
@@ -15,6 +14,10 @@ class Poll(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Add these missing fields with default values
+    start_time = models.DateTimeField(default=timezone.now)
+    end_time = models.DateTimeField(default=timezone.now)  # You can set a custom default in your app logic
 
     def __str__(self):
         return self.title
