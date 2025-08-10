@@ -272,6 +272,28 @@ To further enhance your backend engineering skills, consider exploring the follo
         - `200 OK`: Returns a list of the user's orders.
         - `401 Unauthorized`: If the user is not authenticated.
 
+### Polls API
+
+- **List Polls**: `GET /api/polls/`
+    - Retrieve a list of all polls.
+    - **Response**:
+        - `200 OK`: Returns a list of polls.
+        - `500 Internal Server Error`: If there's a problem with the server.
+
+- **Create Poll**: `POST /api/polls/`
+    - Add a new poll (Admin only).
+    - **Request Body**:
+        ```json
+        {
+            "question": "string",
+            "options": ["string", "string"],
+            "is_active": "boolean"
+        }
+        ```
+    - **Response**:
+        - `201 Created`: Poll added successfully.
+        - `403 Forbidden`: If the user is not an admin.
+
 ---
 
 ## 🧑‍🤝‍🧑 Contributor's Guide
