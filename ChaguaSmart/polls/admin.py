@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils import timezone  # Add this import
+from django.utils import timezone  
 from .models import Poll, Option, Vote
 
 
@@ -13,9 +13,9 @@ class PollAdmin(admin.ModelAdmin):
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
     # The field might be 'text' instead of 'option_text'
-    list_display = ['poll', 'text']  # Change 'option_text' to match your actual field name
+    list_display = ['poll', 'text']  
     list_filter = ['poll']
-    search_fields = ['text', 'poll__title']  # Update here too
+    search_fields = ['text', 'poll__title']  
 
 
 @admin.register(Vote)

@@ -23,14 +23,14 @@ def poll_created_or_updated(sender, instance, created, **kwargs):
         print(f"New poll created: {instance.title} by {instance.created_by}")
         
         # You could send notifications here
-        # from django.core.mail import send_mail
-        # send_mail(
-        #     f'New Poll: {instance.title}',
-        #     f'A new poll has been created: {instance.title}',
-        #     'noreply@chaguasmart.com',
-        #     [user.email for user in User.objects.filter(campus=instance.created_by.campus)],
-        #     fail_silently=True,
-        # )
+        from django.core.mail import send_mail
+        send_mail(
+            f'New Poll: {instance.title}',
+            f'A new poll has been created: {instance.title}',
+         'noreply@chaguasmart.com',
+            [user.email for user in User.objects.filter(campus=instance.created_by.campus)],
+            fail_silently=True,
+        )
 
 
 @receiver(post_save, sender=Option)
@@ -61,8 +61,8 @@ def vote_cast(sender, instance, created, **kwargs):
             poll = instance.poll
             option = instance.option
             # If you had a total_votes field, you could update it directly
-            # poll.total_votes = F('total_votes') + 1
-            # poll.save(update_fields=['total_votes'])
+            poll.total_votes = F('total_votes') + 1
+            poll.save(update_fields=['total_votes'])
 
 
 @receiver(post_delete, sender=Vote)

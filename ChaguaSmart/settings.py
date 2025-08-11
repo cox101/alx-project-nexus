@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
-    'django_filters',  # This is correct
+    'django_filters',  
     'drf_yasg',
     'corsheaders',
     
@@ -89,14 +89,15 @@ DATABASES = {
 # Custom user model
 AUTH_USER_MODEL = 'users.User'
 
-# REST Framework Configuration - DO NOT INCLUDE DEFAULT_FILTER_BACKENDS HERE
+# REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # We're removing DEFAULT_FILTER_BACKENDS completely to avoid the import error
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
 }
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -111,5 +112,5 @@ CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=True)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Default primary key field type
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

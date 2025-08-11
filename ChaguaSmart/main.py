@@ -30,7 +30,7 @@ ACCESS_TOKEN_LIFETIME=60
 REFRESH_TOKEN_LIFETIME=1440
 """.strip()
 
-# Write to .env file in project root
+
 with open(".env", "w") as env_file:
     env_file.write(env_contents + "\n")
 

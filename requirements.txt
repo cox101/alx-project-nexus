@@ -16,13 +16,13 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Install packages
-#pip install --no-cache-dir -r requirements.txt
+pip install -r requirements.txt
 
 # API Endpoints:
-# Main API: http://localhost:8000/api/polls/
-# Swagger Docs: http://localhost:8000/api/docs/
-# Admin Panel: http://localhost:8000/admin/
-# Auth endpoints: http://localhost:8000/api/auth/
+Main API: http://localhost:8000/api/polls/
+Swagger Docs: http://localhost:8000/api/docs/
+Admin Panel: http://localhost:8000/admin/
+Auth endpoints: http://localhost:8000/api/auth/
 
 from django.contrib import admin
 from django.urls import path, include
@@ -55,6 +55,6 @@ DATABASES = {
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
-    path('api/polls/', include('polls.urls')),  # if you have a separate polls app
+    path('api/polls/', include('polls.urls')),  
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
 ]

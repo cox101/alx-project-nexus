@@ -34,11 +34,11 @@ class PollTests(APITestCase):
             description="Vote your next president",
             created_by=self.admin,
             start_time=timezone.now(),
-            end_time=timezone.now() + timedelta(days=1)  # Updated field name
+            end_time=timezone.now() + timedelta(days=1)  
         )
         
         # Create options with correct field name
-        self.option1 = Option.objects.create(poll=self.poll, text="Candidate A")  # Updated field name
+        self.option1 = Option.objects.create(poll=self.poll, text="Candidate A")  
         self.option2 = Option.objects.create(poll=self.poll, text="Candidate B")
 
     def get_jwt_token(self, user):
@@ -59,7 +59,7 @@ class PollTests(APITestCase):
             "description": "Secretary election",
             "start_time": timezone.now().isoformat(),
             "end_time": (timezone.now() + timedelta(days=2)).isoformat(),
-            "options": ["Candidate X", "Candidate Y"]  # Required for poll creation
+            "options": ["Candidate X", "Candidate Y"] 
         }
         
         response = self.client.post(reverse('poll-list'), data, format='json')
@@ -178,7 +178,7 @@ class PollTests(APITestCase):
         """Test poll creation with invalid data"""
         self.authenticate_user(self.admin)
         
-        # Test with end time before start time
+        # end time before start time
         invalid_data = {
             "title": "Invalid Poll",
             "description": "End time before start time",
@@ -297,6 +297,6 @@ class ModelTests(TestCase):
 
 class PollsApiTests(APITestCase):
     def test_list_polls(self):
-        url = reverse('polls-list')  # Use your actual URL name
+        url = reverse('polls-list')  
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

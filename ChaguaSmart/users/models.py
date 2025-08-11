@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    # Add related_name to avoid conflicts
+
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',

@@ -1,8 +1,7 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework.generics import ListAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView  # Add this import
+from rest_framework.response import Response  # Add this import
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import RegisterView
 
 app_name = 'users'
@@ -22,6 +21,7 @@ urlpatterns = [
     # Registration endpoint
     path('register/', RegisterView.as_view(), name='register'),
     
-    # JWT token refresh endpoint
-    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    # JWT token endpoints
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

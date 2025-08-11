@@ -35,7 +35,6 @@ class CastVoteView(generics.CreateAPIView):
         vote = Vote.objects.create(user=user, poll=poll, option_id=option_id)
         return Response(VoteSerializer(vote).data, status=status.HTTP_201_CREATED)
 
-# (Move this block below the PollListCreateView and other view class definitions)
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import permissions
@@ -111,6 +110,48 @@ class PollViewSet(viewsets.ModelViewSet):
             return Response({"message": "Vote submitted"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['get'], url_path='results')
+    def results(self, request, pk=None):
+        poll = self.get_object()
+        results = poll.get_results()
+        return Response(results)
+
+    @action(detail=True, methods=['post'], url_path='cast-vote')
+    def cast_vote(self, request, pk=None):
+        """Cast a vote with confirmation"""
+        poll = self.get_object()
+        
+        if not poll.is_active:
+            return Response({"error": "This poll is not active"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+        
+        option_id = request.data.get('option_id')
+        if not option_id:
+            return Response({"error": "No option selected"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already voted
+        if poll.votes.filter(user=request.user).exists():
+            return Response({"error": "You already voted in this poll"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create vote
+        try:
+            option = poll.options.get(id=option_id)
+            vote = Vote.objects.create(
+                poll=poll,
+                option=option,
+                user=request.user
+            )
+            # Return confirmation
+            return Response({
+                "message": "Vote recorded successfully",
+                "confirmation_id": vote.id,
+                "timestamp": vote.voted_at
+            })
+        except:
+            return Response({"error": "Invalid option"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
 
 class OptionViewSet(viewsets.ModelViewSet):
     queryset = Option.objects.all()
@@ -144,13 +185,6 @@ class FilteredPollListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_active', 'created_by']
 
-class PollResultsView(generics.RetrieveAPIView):
-    queryset = Poll.objects.all()
-    serializer_class = PollSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def retrieve(self, request, *args, **kwargs):
-        poll_id = self.kwargs.get("poll_id")
 class PollResultsView(generics.RetrieveAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer

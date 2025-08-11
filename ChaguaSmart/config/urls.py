@@ -24,19 +24,24 @@ urlpatterns = [
     # Admin URL
     path('admin/', admin.site.urls),
     
-    # Enable users API URLs
-    path('api/users/', include('users.urls')),
-    
     # Enable polls API URLs
-    # path('api/polls/', include('polls.urls')),
+    path('api/polls/', include('polls.urls')),
     
-    # API documentation URLs - keep commented for now
-    # path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    # path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # Enable users API URLs
+    path('api/auth/', include('users.urls')),
+    
+    # Enable regions API URLs -
+    # path('api/regions/', include('polls.region_urls')),  
+    
+    # API documentation URLs -
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 # Add static/media URLs for development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
 

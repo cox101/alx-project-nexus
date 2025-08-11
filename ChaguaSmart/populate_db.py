@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 def populate_database():
-    # Create test users
+    # Create  users
     admin = User.objects.create_user(
         username='admin',
         email='admin@chaguasmart.com',

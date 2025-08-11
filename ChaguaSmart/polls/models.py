@@ -10,14 +10,14 @@ class Poll(models.Model):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='created_polls'  # Add related_name to avoid conflicts
+        related_name='created_polls'  
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     # Add these missing fields with default values
     start_time = models.DateTimeField(default=timezone.now)
-    end_time = models.DateTimeField(default=timezone.now)  # You can set a custom default in your app logic
+    end_time = models.DateTimeField(default=timezone.now)  
 
     def __str__(self):
         return self.title
@@ -42,6 +42,32 @@ class Poll(models.Model):
             return "ended"
         else:
             return "active"
+
+    def get_vote_count(self, option_id):
+        """Return the number of votes for a specific option"""
+        return self.votes.filter(option_id=option_id).count()
+
+    def get_results(self):
+        """Compute complete poll results"""
+        options = self.options.all()
+        total_votes = self.votes.count()
+        
+        results = []
+        for option in options:
+            vote_count = self.get_vote_count(option.id)
+            percentage = (vote_count / total_votes * 100) if total_votes > 0 else 0
+            
+            results.append({
+                'option_id': option.id,
+                'text': option.text,
+                'votes': vote_count,
+                'percentage': round(percentage, 2)
+            })
+        
+        return {
+            'total_votes': total_votes,
+            'results': results
+        }
 
 
 class Option(models.Model):
@@ -68,7 +94,23 @@ class Vote(models.Model):
     voted_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ('poll', 'user')  # Ensure one vote per user per poll
+        unique_together = ('poll', 'user')  
 
     def __str__(self):
         return f"{self.user.username} voted for {self.option.text} in {self.poll.title}"
+
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=20, unique=True)
+    
+    def __str__(self):
+        return self.name
+
+class PollingStation(models.Model):
+    name = models.CharField(max_length=100)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='stations')
+    address = models.TextField()
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.region.name})"

@@ -20,7 +20,7 @@ def user_created_or_updated(sender, instance, created, **kwargs):
         campus_info = getattr(instance, 'campus', 'Not specified')
         print(f"New user registered: {instance.username} ({instance.email}) from campus {campus_info}")
         
-        # You could create a profile, send welcome email, etc.
+        #  create a profile, send welcome email, etc.
         # create_user_profile(instance)
         # send_welcome_email(instance)
     else:
@@ -31,7 +31,7 @@ def user_created_or_updated(sender, instance, created, **kwargs):
 @receiver(pre_save, sender=User)
 def user_about_to_save(sender, instance, **kwargs):
     """Handle actions before a user is saved"""
-    if instance.pk:  # If this is an update, not a new user
+    if instance.pk:  
         try:
             old_instance = User.objects.get(pk=instance.pk)
             
@@ -47,7 +47,7 @@ def user_about_to_save(sender, instance, **kwargs):
                     print(f"User {instance.username} changed campus from {getattr(old_instance, 'campus', 'None')} to {getattr(instance, 'campus', 'None')}")
                 
         except User.DoesNotExist:
-            # This is a new user, though we should never reach here due to the if instance.pk condition
+            
             pass
 
 
@@ -62,12 +62,12 @@ try:
         user.last_login = timezone.now()
         user.save(update_fields=['last_login'])
         
-        # You could record IP, device, etc.
+        # record IP, device, etc.
         ip = request.META.get('REMOTE_ADDR', '')
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         print(f"User {user.username} logged in from IP: {ip} using: {user_agent}")
         
-        # You could create login history
+        # login history
         # LoginHistory.objects.create(user=user, ip_address=ip, user_agent=user_agent)
 
     @receiver(user_logged_out)
@@ -86,11 +86,11 @@ try:
         ip = request.META.get('REMOTE_ADDR', '')
         print(f"Failed login attempt for username: {username} from IP: {ip}")
         
-        # You could implement security measures
-        # track_failed_login_attempts(username, ip)
+        # could implement security measures
+        #track_failed_login_attempts(username, ip)
         
 except ImportError:
-    # Django version might not have these signals
+    
     pass
 
 
@@ -103,17 +103,15 @@ try:
         """Handle password change"""
         print(f"Password changed for user: {user.username}")
         
-        # You could send notification email
-        # send_password_changed_notification(user)
+    
 
     @receiver(password_reset)
     def password_reset_callback(sender, request, user, **kwargs):
         """Handle password reset"""
         print(f"Password reset for user: {user.username}")
         
-        # You could send notification email
-        # send_password_reset_notification(user)
+
         
 except ImportError:
-    # Django version might not have these signals
+   
     pass

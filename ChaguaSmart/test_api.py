@@ -3,7 +3,7 @@ import json
 
 BASE_URL = 'http://127.0.0.1:8000'
 
-# Test data
+
 test_user = {
     'username': 'teststudent',
     'email': 'student@test.com',
@@ -11,17 +11,17 @@ test_user = {
     'campus': 'Main'
 }
 
-# Test registration (if you have this endpoint)
+
 try:
     response = requests.post(f'{BASE_URL}/api/auth/register/', json=test_user)
     print(f"Registration: {response.status_code}")
 except:
     print("Registration endpoint not available yet")
 
-# Test admin login
+
 try:
     login_data = {
-        'username': 'admin',  # Use your superuser credentials
+        'username': 'admin',  
         'password': 'your_admin_password'
     }
     response = requests.post(f'{BASE_URL}/api/token/', json=login_data)

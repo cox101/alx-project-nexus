@@ -11,10 +11,10 @@ def main():
         from dotenv import load_dotenv
         load_dotenv()
     except ImportError:
-        # dotenv is optional, continue without it
+        
         pass
 
-    # Updated to match your wsgi.py configuration
+    
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     
     try:

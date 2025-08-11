@@ -12,7 +12,7 @@ class PollResultsView(generics.RetrieveAPIView):
         poll_id = kwargs.get("poll_id")
         options = Option.objects.filter(poll_id=poll_id).annotate(vote_count=Count('votes'))
 
-        total_votes = sum([opt.vote_count for opt in options]) or 1  # avoid ZeroDivision
+        total_votes = sum([opt.vote_count for opt in options]) or 1 
 
         data = [
             {
