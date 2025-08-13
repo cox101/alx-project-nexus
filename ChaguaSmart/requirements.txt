@@ -9,6 +9,8 @@ dj-database-url>=2.0.0
 whitenoise>=6.0.0
 django-environ>=0.10.0
 django-filter>=23.2
+whitenoise
+gunicorn
 
 
 pip install -r requirements.txt# Create virtual environment (if you haven't already)
