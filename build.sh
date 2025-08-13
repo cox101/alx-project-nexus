@@ -5,8 +5,6 @@ set -o errexit
 # Install dependencies
 pip install -r requirements.txt
 
-# Navigate to project directory
-cd ChaguaSmart
 
 # Collect static files
 python manage.py collectstatic --noinput
